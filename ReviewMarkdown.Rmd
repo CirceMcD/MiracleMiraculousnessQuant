@@ -1,0 +1,53 @@
+---
+title: "MiracleStart"
+author: "Circe McDonald"
+output: html_document
+---
+
+```{r}
+library(Brobdingnag)
+library(dplyr)
+```
+
+
+Context: 
+Stuck at home during the 2020 CovID-19 covfefe, I binged the 2014-2017 seried *The Leftovers* considered one of the greatest shows of all time by a number of profssional critics. The series takes place in a work in which there a global "Sudden Departure" of 2% of the world's population. The second and third season heavily feature Jarden, Texas, a town of 9,261, from which no one departed. This town is considered such a spectacular anomoly that it has been encapsulated in a new national park, Miracle National Park, has million dollar bids for homes, and whole tent city of people desperate to get in. But this left me with the question as a statistician, what is the expectant size town of a town with no departures given random chance? 
+
+Approach 1: 
+https://www.reddit.com/r/TheLeftovers/comments/3num3k/how_miraculous_is_miracle/
+First stab on reddit was to say that given a set of 9,261, what is the likelihood that none of these people departed. 
+
+```{r}
+ChanceOfDeparture <- 0.98
+PopulationOfTown <- 9261
+Probability <- as.brob(ChanceOfDeparture)^(9261)
+print(sprintf("Probability of any set of 9261 people having no departures: %.03e", Probability))
+```
+
+However, note that this is assuming there is only one town with this number of people. Assuming that the show takes place in the same timeline as it is released, the Sudden Departure would have occured in 2011. Taking Census Data of incorporated places (https://www.census.gov/data/tables/time-series/demo/popest/2010s-total-cities-and-towns.html), we can see that 
+
+```{r}
+Census2010 <- read.csv(file = "C:/Users/Circe/Desktop/MiracleBreakdown/SUB-IP-EST2019-ANNRES.csv", header = TRUE)
+              ## Need to fix this to be relational in git repo. 
+
+# Get dataset with incorporated US cities between 9000 and 10000 during 2011. 
+Census2010_CitiesSimiliarPopulation <- Census2010 %>% 
+                                        rename(City = `ï..City`) %>%
+                                        mutate_at(vars(-City), ~as.numeric(stringr::str_remove_all(.,","))) %>% 
+                                        filter(as.numeric(X2011) > 9000 & as.numeric(X2011) < 10000)
+
+NumberCitiesSimiliarPopulation <- nrow(Census2010_CitiesSimiliarPopulation) 
+print(sprintf("Number of cities with estimated 2011 population between 9000 and 10000 in the US: %d", NumberCitiesSimiliarPopulation))
+
+AnyTownThatSizeProbability <- Probability*NumberCitiesSimiliarPopulation
+print(sprintf("Probability of any set of %s sets of 9261 people having no departures: %.03e", NumberCitiesSimiliarPopulation, AnyTownThatSizeProbability))
+```
+But why would we assume only towns that size would be susceptible. Let's take a step back and figure out the expected run of given a probability flip for each of the ~7 billion people on Earth in 2011. This is covered in Longest Run of Heads problems such as here: 
+https://alexamarioarei.github.io/Research/docs/LongestHrunReview.pdf as well as Bernoilli trials. Let's  start with something smaller than 7 billion though. 
+
+
+```{r}
+NumberOfTrials <- 
+
+```
+
