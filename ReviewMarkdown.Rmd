@@ -11,7 +11,7 @@ library(dplyr)
 
 
 Context: 
-Stuck at home during the 2020 CovID-19 covfefe, I binged the 2014-2017 seried *The Leftovers* considered one of the greatest shows of all time by a number of profssional critics. The series takes place in a work in which there a global "Sudden Departure" of 2% of the world's population. The second and third season heavily feature Jarden, Texas, a town of 9,261, from which no one departed. This town is considered such a spectacular anomoly that it has been encapsulated in a new national park, Miracle National Park, has million dollar bids for homes, and whole tent city of people desperate to get in. But this left me with the question as a statistician, what is the expectant size town of a town with no departures given random chance? 
+Stuck at home during the 2020 CovID-19 covfefe, I binged the 2014-2017 seried *The Leftovers* considered one of the greatest shows of all time by a number of professional critics. The series takes place in a work in which there a global "Sudden Departure" of 2% of the world's population. The second and third season heavily feature Jarden, Texas, a town of 9,261, from which no one departed. This town is considered such a spectacular anomaly that it has been encapsulated in a new national park, Miracle National Park, has million dollar bids for homes, and whole tent city of people desperate to get in. But this left me with the question as a statistician, what is the expectant size town of a town with no departures given random chance? 
 
 Approach 1: 
 https://www.reddit.com/r/TheLeftovers/comments/3num3k/how_miraculous_is_miracle/
@@ -21,7 +21,7 @@ First stab on reddit was to say that given a set of 9,261, what is the likelihoo
 ChanceOfDeparture <- 0.98
 PopulationOfTown <- 9261
 Probability <- as.brob(ChanceOfDeparture)^(9261)
-print(sprintf("Probability of any set of 9261 people having no departures: %.03e", Probability))
+print(spr  "Probability of any set of 9261 people having no departures: %.03e", Probability))
 ```
 
 However, note that this is assuming there is only one town with this number of people. Assuming that the show takes place in the same timeline as it is released, the Sudden Departure would have occured in 2011. Taking Census Data of incorporated places (https://www.census.gov/data/tables/time-series/demo/popest/2010s-total-cities-and-towns.html), we can see that 
@@ -42,12 +42,51 @@ print(sprintf("Number of cities with estimated 2011 population between 9000 and 
 AnyTownThatSizeProbability <- Probability*NumberCitiesSimiliarPopulation
 print(sprintf("Probability of any set of %s sets of 9261 people having no departures: %.03e", NumberCitiesSimiliarPopulation, AnyTownThatSizeProbability))
 ```
-But why would we assume only towns that size would be susceptible. Let's take a step back and figure out the expected run of given a probability flip for each of the ~7 billion people on Earth in 2011. This is covered in Longest Run of Heads problems such as here: 
-https://alexamarioarei.github.io/Research/docs/LongestHrunReview.pdf as well as Bernoilli trials. Let's  start with something smaller than 7 billion though. 
 
+# However, we want to calculate the expectant length of individuals not departed given the size of the world population. Working based off of these two papers: 
+https://www.maa.org/sites/default/files/images/upload_library/22/Polya/07468342.di020742.02p0021g.pdf
+https://alexamarioarei.github.io/Research/docs/LongestHrunReview.pdf
 
 ```{r}
-NumberOfTrials <- 
+N_NumberOfTrials <- 10
+M_ExpectedStreak <- 4 
+
+Anm.function <- function(n, m){
+  if(n <= m){
+    out <- 2^n
+    return(out)
+  } else if (n > m){
+    out <- 0
+    for(i in 0:m){
+      out <- out + Anm.function((n-i-1), m)
+    }
+    return(out)
+  }
+}
+
+
+Anm.function(N_NumberOfTrials, M_ExpectedStreak)
+ProbabilityNotGreater <- Anm.function(N_NumberOfTrials, M_ExpectedStreak) / 2^N_NumberOfTrials
+```
+
+```{r}
+Ckn.function <- function(n, m, k){
+  out <- 0
+  if (k <= m){
+    out <- choose(n, k)
+  } else if (n > k & k > m){
+    for(j in 0:m){
+      out <- out + Ckn.function(n-j-1, m, k-j)
+    }    
+  } else {
+    out <- 0
+  }
+  return(out)
+}
+
+
+Ckn.function(8, 3, 7)
 
 ```
+
 
